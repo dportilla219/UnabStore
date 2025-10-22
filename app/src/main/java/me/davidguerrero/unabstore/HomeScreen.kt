@@ -23,6 +23,9 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.CheckboxDefaults.colors
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 // Colores personalizados
 
@@ -30,7 +33,9 @@ import androidx.compose.material3.*
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onClickLogOut: () -> Unit = {}) {
+    val auth = Firebase.auth
+    val user = auth.currentUser
     Scaffold(
         topBar = {
             MediumTopAppBar(
@@ -75,6 +80,22 @@ fun HomeScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("HOME SCREEN", fontSize = 30.sp)
+            }
+            if (user!= null){
+                Text(user.email.toString())
+            }else{
+                Text("No hay usuario")
+            }
+            Button(
+                onClick = {
+                    auth.signOut()
+                    onClickLogOut()
+                },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9900)
+            )
+            ){
+                Text("Cerrar Sesión")
             }
         }
     }

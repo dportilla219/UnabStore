@@ -50,13 +50,12 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
 
-@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {}) {
-
-    val auth = Firebase.auth
+fun RegisterScreen(onClickBack :()-> Unit={},onSuccessfulRegister:()->Unit={}) {
+    val  auth = Firebase.auth
     val activity = LocalView.current.context as Activity
+
 
     //ESTADO DE LOS INPUT
     var inputName by remember { mutableStateOf("") }
@@ -67,7 +66,7 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
     var nameError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
-    var passwordConfirmationError by remember { mutableStateOf("") }
+    var confirmPasswordError by remember { mutableStateOf("") }
 
     var registerError by remember { mutableStateOf("") }
     Scaffold(
@@ -118,11 +117,13 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
             // Campo de Nombre
             OutlinedTextField(
                 value = inputName,
-                onValueChange = {inputName = it},
+                onValueChange = {inputName=it},
                 label = { Text("Nombre") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Person, contentDescription = "Nombre")
                 },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 supportingText = {
                     if(nameError.isNotEmpty()){
                         Text(
@@ -130,9 +131,7 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
                             color = Color.Red
                         )
                     }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -140,11 +139,14 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
             // Campo de Correo Electrónico
             OutlinedTextField(
                 value = inputEmail,
-                onValueChange = {inputEmail = it},
+                onValueChange = {inputEmail=it},
                 label = { Text("Correo Electrónico") },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Email, contentDescription = "Email")
                 },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 supportingText = {
                     if(emailError.isNotEmpty()){
                         Text(
@@ -152,10 +154,7 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
                             color = Color.Red
                         )
                     }
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -168,18 +167,17 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Contraseña")
                 },
-                supportingText = {
-                    if(passwordError.isNotEmpty()){
-                        Text(
-                            text = passwordError,
-                            color = Color.Red
-                        )
-                    }
-                },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                supportingText = {
+                    if(passwordError.isNotEmpty()){
+                        Text(text = passwordError,
+                            color = Color.Red
+                        )
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -187,7 +185,7 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
             // Campo de Confirmar Contraseña
             OutlinedTextField(
                 value = inputPasswordConfirmation,
-                onValueChange = {inputPasswordConfirmation = it},
+                onValueChange = {inputPasswordConfirmation=it},
                 label = { Text("Confirmar Contraseña") },
                 leadingIcon = {
                     Icon(
@@ -195,22 +193,21 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
                         contentDescription = "Confirmar Contraseña"
                     )
                 },
-                supportingText = {
-                    if(passwordConfirmationError.isNotEmpty()){
-                        Text(
-                            text = passwordConfirmationError,
-                            color = Color.Red
-                        )
-                    }
-                },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                supportingText = {
+                    if(confirmPasswordError.isNotEmpty()){
+                        Text(
+                            text = confirmPasswordError,
+                            color = Color.Red
+                        )
+                    }
+                }
             )
-
             if(registerError.isNotEmpty()){
-                Text(registerError, color= Color.Red)
+                Text(registerError, color = Color.Red)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -222,33 +219,41 @@ fun RegisterScreen(onClickBack :()-> Unit = {}, onSuccesfulRegister:()->Unit = {
                     val isValidName = validateName(inputName).first
                     val isValidEmail = validateEmail(inputEmail).first
                     val isValidPassword = validatePassword(inputPassword).first
-                    val isValidConfirmPassword = validateConfirmPassword(inputPassword, inputPasswordConfirmation).first
+                    val isValidConfirmPassword = validateConfirmPassword(inputPassword,inputPasswordConfirmation).first
 
-                    nameError=validateName(inputName).second
-                    emailError=validateEmail(inputEmail).second
-                    passwordError=validatePassword(inputPassword).second
-                    passwordConfirmationError=validateConfirmPassword(inputPassword,inputPasswordConfirmation).second
+                    nameError = validateName(inputName).second
+                    emailError = validateEmail(inputEmail).second
+                    passwordError = validatePassword(inputPassword).second
+                    confirmPasswordError = validateConfirmPassword(inputPassword,inputPasswordConfirmation).second
 
-                    if (isValidName && isValidEmail && isValidPassword && isValidConfirmPassword){
+                    if(isValidName && isValidEmail && isValidPassword && isValidConfirmPassword){
                         auth.createUserWithEmailAndPassword(inputEmail,inputPassword).
-                        addOnCompleteListener(activity) { task ->
+                        addOnCompleteListener(activity) { task->
                             if(task.isSuccessful){
-                                onSuccesfulRegister()
+                                onSuccessfulRegister()
                             }else{
-
                                 registerError = when(task.isSuccessful){
-                                    is FirebaseAuthInvalidCredentialsException -> "Correo invalido"
-                                    is FirebaseAuthUserCollisionException -> "Correo ya registrado"
-                                    else -> "error al registrarse"
+                                    is FirebaseAuthInvalidCredentialsException ->"El correo es invalido"
+                                    is FirebaseAuthUserCollisionException ->"Correo ya registrado"
+                                    else ->"Error al registrarse"
                                 }
                             }
                         }
-
                     }else{
-                        registerError="Hubo un error en el register"
+                        registerError = when{
+                            !isValidName->"El nombre es invalido"
+                            !isValidEmail->"El correo es invalido"
+                            !isValidPassword->"La contraseña es invalida"
+                            !isValidConfirmPassword->"Las contraseñas no coinciden"
+                            else->""
+                        }
                     }
 
-                },modifier = Modifier
+
+
+
+                },
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),

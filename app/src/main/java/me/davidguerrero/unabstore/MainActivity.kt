@@ -16,7 +16,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.auth
-import com.google.firebase.ktx.Firebase
 import me.davidguerrero.unabstore.ui.theme.UnabStoreTheme
 
 
@@ -25,43 +24,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
-            val navController = rememberNavController()
-            var startDestination = "login"
-
-
-
-
-            NavHost(
-                navController = navController,
-                        startDestination = startDestination,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                composable(route = "login") {
-                    LoginScreen(onClickRegister = {
-                        navController.navigate("register")
-                    }, onSuccessfullLogin = {
-                        navController.navigate("home"){
-                            popUpTo("login"){inclusive = true}
-                        }
-                    })
-                }
-                composable(route = "register") {
-                    RegisterScreen(onClickBack = {
-                        navController.popBackStack()
-                    }, onSuccesfulRegister = {
-                        navController.navigate("home"){
-                            popUpTo(0)
-                        }
-                    })
-                }
-                composable(route = "home") {
-                    HomeScreen(onClickLogOut = {
-                        navController.navigate("login"){
-                            popUpTo(0)
-                        }
-                    })
-                }
+            UnabStoreTheme {
+                NavigationApp()
             }
 
         }
